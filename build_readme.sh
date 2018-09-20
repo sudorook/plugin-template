@@ -45,7 +45,8 @@ PLUGIN_NAME=$(cat "${CPPFILE}" | \
               sed -e 's/ \([A-Z][a-z]\)/ \1/g')
 DESCRIPTION=$(awk '/^[ \t]*setWhatsThis.*/,/\);/' "${CPPFILE}" | \
               tr -d '\n' | sed -n "s/^\s*setWhatsThis(.*\"\(.*\)\");/\1\n/p")
-VARS_ARRAY=$(grep -Pzo "(?s)(\s*)\N*vars\[\].*?{.*?\1};" "${CPPFILE}")
+VARS_ARRAY=$(grep -Pzo "(?s)(\s*)\N*vars\[\].*?{.*?\1};" "${CPPFILE}" | \
+             tr -d '\0')
 CATAPULT=$(echo ${VARS_ARRAY} | tr -d '\n' | \
 awk ' BEGIN { p=0 } 
 {
