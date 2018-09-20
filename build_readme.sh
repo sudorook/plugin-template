@@ -51,7 +51,8 @@ PLUGIN_NAME=$(cat "${CPPFILE}" | \
 
 # Get the plugin description from the text stuck in the setWhatsThis call().
 DESCRIPTION=$(awk '/^[ \t]*setWhatsThis.*/,/\);/' "${CPPFILE}" | \
-              tr -d '\n' | sed -n "s/^\s*setWhatsThis(.*\"\(.*\)\");/\1\n/p")
+              tr -d '\n' | sed -n "s/^\s*setWhatsThis(\"\(.*\)\");/\1\n/p" | \
+              tr -d '\t' | sed -e 's/"[  ]\+"//g')
 
 # Use grep to get the code for the vars[] array that specify all the RTXI
 # variables.
