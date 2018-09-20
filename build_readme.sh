@@ -1,6 +1,6 @@
 #! /bin/bash
 
-################################################################################
+#
 # Copyright (C) 2011 Georgia Institute of Technology, University of Utah, 
 # Weill Cornell Medical College
 #
@@ -16,37 +16,50 @@
 # 
 # You should have received a copy of the GNU General Public License along with 
 # this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+#
 
-################################################################################
+#
 # This script will build a README file using a module's source code, assuming 
 # the module abstracted from DefaultGUI. In the module directory, run: 
-# $ ./build_readme.sh
-################################################################################
-
-################################################################################
-# Set variables. Assume source code is files have the same name as the parent 
-# directory and the output file is called 'NEW_README.md'. 
 #
-# Manually override the default behaviour as needed. 
-################################################################################
+# ./build_readme.sh
+#
 
+
+#
+# Set and generate variables.
+#
+
+# Set names for the source files and screenshot. Assume source code is files
+# have the same name as the parent directory. Manually override this behaviour
+# as needed. 
 CPPFILE="${PWD##*/}.cpp"
 HEADER="${PWD##*/}.h"
 SCREENSHOT="${PWD##*/}.png"
 
-README=NEW_README.md
+# Name of the output. Change to README.md to automatically overwrite the
+# current readme.
+OUTPUT=NEW_README.md
 
 REQUIREMENTS=None
 LIMITATIONS=None
 
+# Get the name of the plugin from the DefaultGuiModel() call.
 PLUGIN_NAME=$(cat "${CPPFILE}" | \
               sed -n "s/.*DefaultGUIModel(\"\(.*\)\",.*/\1/p" | \
               sed -e 's/ \([A-Z][a-z]\)/ \1/g')
+
+# Get the plugin description from the text stuck in the setWhatsThis call().
 DESCRIPTION=$(awk '/^[ \t]*setWhatsThis.*/,/\);/' "${CPPFILE}" | \
               tr -d '\n' | sed -n "s/^\s*setWhatsThis(.*\"\(.*\)\");/\1\n/p")
+
+# Use grep to get the code for the vars[] array that specify all the RTXI
+# variables.
 VARS_ARRAY=$(grep -Pzo "(?s)(\s*)\N*vars\[\].*?{.*?\1};" "${CPPFILE}" | \
              tr -d '\0')
+
+# Parse VARS_ARRAY to generate a list containing all the vars[] variables,
+# including the variable name, tooltip description, and type.
 CATAPULT=$(echo ${VARS_ARRAY} | tr -d '\n' | \
 awk ' BEGIN { p=0 } 
 {
@@ -67,6 +80,13 @@ awk ' BEGIN { p=0 }
   }
 } ')
 
+
+# Function that takes a variable list and a type (PARAMETER, STATE, INPUT,
+# OUTPUT) and then prints out a README-formatted list containing all the
+# variables in the list with the specified type.
+#
+# Usage: PRINT_VARIABLES <LIST> <TYPE>
+#    eg: PRINT_VARIABLES ${CATAPULT} "PARAMETER"
 function PRINT_VARIABLES() {
   LIST=$1
   TYPE=$2
@@ -85,30 +105,33 @@ function PRINT_VARIABLES() {
   done <<< "${LIST}"
 }
 
-################################################################################
-# Generate the README. The format is intended to be consistent with the pages 
-# found on http://rtxi.org/modules. 
-################################################################################
 
-echo "### ${PLUGIN_NAME}"                          > "${README}"
-echo ""                                           >> "${README}"
-echo "**Requirements:** ${REQUIREMENTS}  "        >> "${README}"
-echo "**Limitations:** ${LIMITATIONS}  "          >> "${README}"
-echo ""                                           >> "${README}"
-echo "![${PLUGIN_NAME} GUI](${SCREENSHOT})"       >> "${README}"
-echo ""                                           >> "${README}"
-echo "<!--start-->"                               >> "${README}"
-echo "${DESCRIPTION}"                             >> "${README}"
-echo "<!--end-->"                                 >> "${README}"
-echo ""                                           >> "${README}"
-echo "#### Input"                                 >> "${README}"
-echo "$(PRINT_VARIABLES "${CATAPULT}" INPUT)"     >> "${README}"
-echo ""                                           >> "${README}"
-echo "#### Output"                                >> "${README}"
-echo "$(PRINT_VARIABLES "${CATAPULT}" OUTPUT)"    >> "${README}"
-echo ""                                           >> "${README}"
-echo "#### Parameters"                            >> "${README}"
-echo "$(PRINT_VARIABLES "${CATAPULT}" PARAMETER)" >> "${README}"
-echo ""                                           >> "${README}"
-echo "#### States"                                >> "${README}"
-echo "$(PRINT_VARIABLES "${CATAPULT}" STATE)"     >> "${README}"
+#
+# Generate the README.
+#
+# The format is intended to be consistent with the pages found on
+# http://rtxi.org/modules. 
+#
+
+echo "### ${PLUGIN_NAME}"                          > "${OUTPUT}"
+echo ""                                           >> "${OUTPUT}"
+echo "**Requirements:** ${REQUIREMENTS}  "        >> "${OUTPUT}"
+echo "**Limitations:** ${LIMITATIONS}  "          >> "${OUTPUT}"
+echo ""                                           >> "${OUTPUT}"
+echo "![${PLUGIN_NAME} GUI](${SCREENSHOT})"       >> "${OUTPUT}"
+echo ""                                           >> "${OUTPUT}"
+echo "<!--start-->"                               >> "${OUTPUT}"
+echo "${DESCRIPTION}"                             >> "${OUTPUT}"
+echo "<!--end-->"                                 >> "${OUTPUT}"
+echo ""                                           >> "${OUTPUT}"
+echo "#### Input"                                 >> "${OUTPUT}"
+echo "$(PRINT_VARIABLES "${CATAPULT}" INPUT)"     >> "${OUTPUT}"
+echo ""                                           >> "${OUTPUT}"
+echo "#### Output"                                >> "${OUTPUT}"
+echo "$(PRINT_VARIABLES "${CATAPULT}" OUTPUT)"    >> "${OUTPUT}"
+echo ""                                           >> "${OUTPUT}"
+echo "#### Parameters"                            >> "${OUTPUT}"
+echo "$(PRINT_VARIABLES "${CATAPULT}" PARAMETER)" >> "${OUTPUT}"
+echo ""                                           >> "${OUTPUT}"
+echo "#### States"                                >> "${OUTPUT}"
+echo "$(PRINT_VARIABLES "${CATAPULT}" STATE)"     >> "${OUTPUT}"
