@@ -115,8 +115,8 @@ function PRINT_VARIABLES() {
 
 echo "### ${PLUGIN_NAME}"                          > "${OUTPUT}"
 echo ""                                           >> "${OUTPUT}"
-echo "**Requirements:** ${REQUIREMENTS}  "        >> "${OUTPUT}"
-echo "**Limitations:** ${LIMITATIONS}  "          >> "${OUTPUT}"
+echo "**Requirements:** ${REQUIREMENTS}"          >> "${OUTPUT}"
+echo "**Limitations:** ${LIMITATIONS}"            >> "${OUTPUT}"
 echo ""                                           >> "${OUTPUT}"
 echo "![${PLUGIN_NAME} GUI](${SCREENSHOT})"       >> "${OUTPUT}"
 echo ""                                           >> "${OUTPUT}"
